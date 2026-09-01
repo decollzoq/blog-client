@@ -15,7 +15,11 @@ function CategoryFilter() {
 
             // { success: true, data: [...] } 포맷 대응
             const rawCategories = res.data || (Array.isArray(res) ? res : []);
-            setCategoryList(rawCategories);
+            setCategoryList(
+                rawCategories.filter(
+                    (c: Category) => c && c.name && c.name.trim() !== "",
+                ),
+            );
         } catch (e) {
             if (e instanceof Error) {
                 setError(e.message);
