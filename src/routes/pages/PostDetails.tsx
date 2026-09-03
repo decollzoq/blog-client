@@ -1,12 +1,12 @@
-import { useParams } from "react-router";
-import { useEffect, useState } from "react";
+import {useParams} from "react-router";
+import {useEffect, useState} from "react";
 import PostNavigation from "../../components/PostNavigation";
 import MarkdownViewer from "../../components/MarkdownViewer";
 import PostHeader from "../../components/PostHeader";
 import PostTagList from "../../components/PostTagList";
-import { Post } from "../../types/post";
+import {Post} from "../../types/post";
 function PostDetails() {
-    const { slug } = useParams<string>();
+    const {slug} = useParams<string>();
     const [post, setPost] = useState<Post>();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -16,9 +16,10 @@ function PostDetails() {
             const response = await fetch(
                 `${process.env.REACT_APP_SERVER_URL}/api/posts/${slug}`,
             );
-            const data = await response.json();
-            console.log(data);
-            setPost(data);
+            const res = await response.json();
+            if (res.success && res.data) {
+                setPost(res.data);
+            }
         } catch (e) {
             if (e instanceof Error) {
                 setError(e.message);

@@ -1,12 +1,12 @@
-import { useCategory } from "../../contexts/providers/CategoryProvider";
+import {useCategory} from "../../contexts/providers/CategoryProvider";
 import FeaturedSlider from "../../components/FeaturedSlider";
 import CategoryFilter from "../../components/CategoryFilter";
 import PostGrid from "../../components/PostGrid";
-import { useEffect, useState } from "react";
-import { PostSummary } from "../../types/post";
+import {useEffect, useState} from "react";
+import {PostSummary} from "../../types/post";
 
 function Home() {
-    const { category } = useCategory();
+    const {category} = useCategory();
     const [posts, setPosts] = useState<PostSummary[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -23,9 +23,12 @@ function Home() {
                 `${process.env.REACT_APP_SERVER_URL}/api/posts${queryParam}`,
             );
 
-            const data: PostSummary[] = await response.json();
-
-            setPosts(data);
+            const res = await response.json();
+            if (res.success && Array.isArray(res.data)) {
+                setPosts(res.data);
+            } else {
+                setPosts([]);
+            }
         } catch (e) {
             if (e instanceof Error) {
                 setError(e.message);
