@@ -1,6 +1,6 @@
-import { PostSummary } from "../types/post";
+import {PostSummary} from "../types/post";
 
-function PostCard({ post }: { post: PostSummary }) {
+function PostCard({post}: {post: PostSummary}) {
     return (
         <article
             key={post.id}
@@ -23,11 +23,11 @@ function PostCard({ post }: { post: PostSummary }) {
                             {post.title}
                         </h3>
 
-                        <div className="flex space-x-2 mb-2">
+                        <div className="flex flex-wrap gap-2 mb-2">
                             {post.tags.map((tag, tdx) => (
                                 <span
                                     key={tdx}
-                                    className="bg-gray-50 rounded-xl text-xs text-gray-500 dark:text-gray-400 dark:bg-gray-800 font-light px-2 py-1"
+                                    className="bg-gray-50 rounded-xl text-xs text-gray-500 dark:text-gray-400 dark:bg-gray-800 font-light px-2 py-1 shrink-0 whitespace-nowrap"
                                 >
                                     # {tag}
                                 </span>
