@@ -8,6 +8,13 @@ interface NavigationProps {
 }
 
 function PostNavigation({prevPost, nextPost}: NavigationProps) {
+    if (!prevPost && !nextPost) {
+        return (
+            <div className="py-6 text-gray-400 dark:text-gray-500 text-sm">
+                해당 카테고리에 등록된 다른 글이 없습니다.
+            </div>
+        );
+    }
     return (
         <nav className="flex justify-between items-center space-x-8">
             <div className="w-1/2">
