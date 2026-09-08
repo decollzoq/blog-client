@@ -1,5 +1,5 @@
 import {useParams} from "react-router";
-import {useEffect, useState} from "react";
+import {useEffect, useState, useCallback} from "react";
 import PostNavigation from "../../components/PostNavigation";
 import MarkdownViewer from "../../components/MarkdownViewer";
 import PostHeader from "../../components/PostHeader";
@@ -10,17 +10,22 @@ import {PostDetailSkeleton} from "../../components/LoadingSkeleton";
 function PostDetails() {
     const {slug} = useParams<string>();
     const [post, setPost] = useState<Post>();
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    async function fetchPostDetail() {
+
+    const fetchPostDetail = useCallback(async () => {
+        if (!slug) return;
         try {
             setIsLoading(true);
+            setError(null);
             const response = await fetch(
                 `${process.env.REACT_APP_SERVER_URL}/api/posts/${slug}`,
             );
             const res = await response.json();
             if (res.success && res.data) {
                 setPost(res.data);
+            } else {
+                setPost(undefined);
             }
         } catch (e) {
             if (e instanceof Error) {
@@ -30,10 +35,22 @@ function PostDetails() {
         } finally {
             setIsLoading(false);
         }
-    }
-    useEffect(() => {
-        fetchPostDetail();
     }, [slug]);
+
+    useEffect(() => {
+        setPost(undefined);
+        fetchPostDetail();
+    }, [fetchPostDetail]);
+
+    useEffect(() => {
+        if (post) {
+            setTimeout(() => {
+                window.scrollTo({top: 0, left: 0, behavior: "instant"});
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+            }, 0);
+        }
+    }, [post]);
 
     if (isLoading) {
         return <PostDetailSkeleton />;
@@ -42,7 +59,11 @@ function PostDetails() {
         return <div className="text-center py-20 text-red-500">{error}</div>;
     }
     if (!post) {
-        return <div>포스트를 찾을 수 없습니다.</div>;
+        return (
+            <div className="text-center py-20 text-gray-500">
+                포스트를 찾을 수 없습니다.
+            </div>
+        );
     }
 
     return (

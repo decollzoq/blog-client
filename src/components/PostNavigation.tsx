@@ -1,3 +1,4 @@
+import {Link} from "react-router";
 import {IoIosArrowBack} from "react-icons/io";
 import {IoIosArrowForward} from "react-icons/io";
 import {PostNav} from "../types/post";
@@ -19,9 +20,9 @@ function PostNavigation({prevPost, nextPost}: NavigationProps) {
         <nav className="flex justify-between items-center space-x-8">
             <div className="w-1/2">
                 {nextPost && (
-                    <a
-                        href={`/posts/${nextPost.slug}`}
-                        className="p-4 flex space-x-4 items-center w-full text-gray-900 dark:text-gray-50 dark:hover:bg-gray-700 hover:bg-gray-50 rounded-lg hover:text-primary"
+                    <Link
+                        to={`/posts/${nextPost.slug}`}
+                        className="p-4 flex space-x-4 items-center w-full text-gray-900 dark:text-gray-50 dark:hover:bg-gray-700 hover:bg-gray-50 rounded-lg hover:text-primary transition-colors"
                     >
                         <IoIosArrowBack className="text-2xl" />
                         <div className="flex flex-col items-start gap-1 min-w-0">
@@ -32,14 +33,14 @@ function PostNavigation({prevPost, nextPost}: NavigationProps) {
                                 {nextPost.title}
                             </p>
                         </div>
-                    </a>
+                    </Link>
                 )}
             </div>
             <div className="w-1/2">
                 {prevPost && (
-                    <a
-                        href={`/posts/${prevPost.slug}`}
-                        className="p-4 flex space-x-4 items-center w-full  justify-end text-gray-900 dark:text-gray-50 dark:hover:bg-gray-700 hover:bg-gray-50 rounded-lg hover:text-primary"
+                    <Link
+                        to={`/posts/${prevPost.slug}`}
+                        className="p-4 flex space-x-4 items-center w-full justify-end text-gray-900 dark:text-gray-50 dark:hover:bg-gray-700 hover:bg-gray-50 rounded-lg hover:text-primary transition-colors"
                     >
                         <div className="flex flex-col items-end gap-1 min-w-0">
                             <div className="text-gray-500 dark:text-gray-300 text-sm">
@@ -50,7 +51,7 @@ function PostNavigation({prevPost, nextPost}: NavigationProps) {
                             </div>
                         </div>
                         <IoIosArrowForward className="text-2xl" />
-                    </a>
+                    </Link>
                 )}
             </div>
         </nav>
