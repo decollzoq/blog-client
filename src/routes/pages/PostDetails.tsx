@@ -10,17 +10,20 @@ import {PostDetailSkeleton} from "../../components/LoadingSkeleton";
 function PostDetails() {
     const {slug} = useParams<string>();
     const [post, setPost] = useState<Post>();
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     async function fetchPostDetail() {
         try {
             setIsLoading(true);
+            setError(null);
             const response = await fetch(
                 `${process.env.REACT_APP_SERVER_URL}/api/posts/${slug}`,
             );
             const res = await response.json();
             if (res.success && res.data) {
                 setPost(res.data);
+            } else {
+                setPost(undefined);
             }
         } catch (e) {
             if (e instanceof Error) {
@@ -32,6 +35,8 @@ function PostDetails() {
         }
     }
     useEffect(() => {
+        setPost(undefined);
+        window.scrollTo({top: 0, left: 0, behavior: "instant"});
         fetchPostDetail();
     }, [slug]);
 
@@ -42,7 +47,11 @@ function PostDetails() {
         return <div className="text-center py-20 text-red-500">{error}</div>;
     }
     if (!post) {
-        return <div>포스트를 찾을 수 없습니다.</div>;
+        return (
+            <div className="text-center py-20 text-gray-500">
+                포스트를 찾을 수 없습니다.
+            </div>
+        );
     }
 
     return (
