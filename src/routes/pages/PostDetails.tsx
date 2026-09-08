@@ -5,6 +5,8 @@ import MarkdownViewer from "../../components/MarkdownViewer";
 import PostHeader from "../../components/PostHeader";
 import PostTagList from "../../components/PostTagList";
 import {Post} from "../../types/post";
+import {PostDetailSkeleton} from "../../components/LoadingSkeleton";
+
 function PostDetails() {
     const {slug} = useParams<string>();
     const [post, setPost] = useState<Post>();
@@ -34,7 +36,10 @@ function PostDetails() {
     }, [slug]);
 
     if (isLoading) {
-        return null;
+        return <PostDetailSkeleton />;
+    }
+    if (error) {
+        return <div className="text-center py-20 text-red-500">{error}</div>;
     }
     if (!post) {
         return <div>포스트를 찾을 수 없습니다.</div>;

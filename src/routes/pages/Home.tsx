@@ -4,6 +4,7 @@ import CategoryFilter from "../../components/CategoryFilter";
 import PostGrid from "../../components/PostGrid";
 import {useEffect, useState} from "react";
 import {PostSummary} from "../../types/post";
+import {HomeLoadingSkeleton} from "../../components/LoadingSkeleton";
 
 function Home() {
     const {category} = useCategory();
@@ -41,6 +42,14 @@ function Home() {
     useEffect(() => {
         fetchPosts();
     }, [category.slug]);
+
+    if (isLoading) {
+        return <HomeLoadingSkeleton />;
+    }
+
+    if (error) {
+        return <div className="text-center py-20 text-red-500">{error}</div>;
+    }
 
     return (
         <div>
