@@ -1,4 +1,5 @@
 import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import {Prism as SyntaxHighlighter} from "react-syntax-highlighter";
 import oneDark from "react-syntax-highlighter/dist/cjs/styles/prism/one-dark";
@@ -11,6 +12,7 @@ function MarkdownViewer({content}: Props) {
     return (
         <article className="prose my-12 dark:prose-invert max-w-none">
             <ReactMarkdown
+                rehypePlugins={[rehypeRaw]}
                 remarkPlugins={[remarkGfm]}
                 components={{
                     pre({children}) {
@@ -53,6 +55,17 @@ function MarkdownViewer({content}: Props) {
                             >
                                 {String(children).replace(/\n$/, "")}
                             </SyntaxHighlighter>
+                        );
+                    },
+                    // Velog 인라인 HTML img 및 표준 마크다운 이미지 공통 처리
+                    img({node, ...props}) {
+                        return (
+                            <img
+                                {...props}
+                                alt={props.alt || "포스트 본문 이미지"}
+                                loading="lazy"
+                                className="rounded-2xl mx-auto my-8 max-w-full h-auto object-contain shadow-sm"
+                            />
                         );
                     },
                 }}
