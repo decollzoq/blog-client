@@ -1,5 +1,5 @@
 import {useParams} from "react-router";
-import {useEffect, useState} from "react";
+import {useEffect, useState, useCallback} from "react";
 import PostNavigation from "../../components/PostNavigation";
 import MarkdownViewer from "../../components/MarkdownViewer";
 import PostHeader from "../../components/PostHeader";
@@ -12,7 +12,9 @@ function PostDetails() {
     const [post, setPost] = useState<Post>();
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    async function fetchPostDetail() {
+
+    const fetchPostDetail = useCallback(async () => {
+        if (!slug) return;
         try {
             setIsLoading(true);
             setError(null);
@@ -33,12 +35,22 @@ function PostDetails() {
         } finally {
             setIsLoading(false);
         }
-    }
+    }, [slug]);
+
     useEffect(() => {
         setPost(undefined);
-        window.scrollTo({top: 0, left: 0, behavior: "instant"});
         fetchPostDetail();
-    }, [slug]);
+    }, [fetchPostDetail]);
+
+    useEffect(() => {
+        if (post) {
+            setTimeout(() => {
+                window.scrollTo({top: 0, left: 0, behavior: "instant"});
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+            }, 0);
+        }
+    }, [post]);
 
     if (isLoading) {
         return <PostDetailSkeleton />;
