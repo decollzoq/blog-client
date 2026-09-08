@@ -12,7 +12,7 @@ function PostCard({post}: {post: PostSummary}) {
                         <img
                             src={post.thumbnail}
                             alt={post.title}
-                            className="w-full h-3/4 object-cover rounded-2xl"
+                            className="w-full aspect-[4/3] object-cover rounded-2xl"
                         />
                         <div className="px-3 py-1 absolute top-3 left-3 bg-gray-600/50 backdrop-blur-sm rounded-2xl text-gray-50 text-sm">
                             {post.categoryName}
