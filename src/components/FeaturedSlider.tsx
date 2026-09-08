@@ -1,13 +1,13 @@
-import { IoIosArrowBack } from "react-icons/io";
-import { IoIosArrowForward } from "react-icons/io";
-import { PostSummary } from "../types/post";
-import { useState } from "react";
+import {IoIosArrowBack} from "react-icons/io";
+import {IoIosArrowForward} from "react-icons/io";
+import {PostSummary} from "../types/post";
+import {useState} from "react";
 
 interface FeaturedSliderProps {
     posts: PostSummary[];
 }
 
-function FeaturedSlider({ posts }: FeaturedSliderProps) {
+function FeaturedSlider({posts}: FeaturedSliderProps) {
     const [currentSlide, setCurrentSlide] = useState(0); // 현재 슬라이드 번호
     let slidePost = posts[currentSlide]; // 현재 슬라이드 게시물
     function nextCard() {
@@ -41,6 +41,7 @@ function FeaturedSlider({ posts }: FeaturedSliderProps) {
             <div className="absolute top-1/2 left-4">
                 <button
                     onClick={() => prevCard()}
+                    aria-label="이전 슬라이드 보기"
                     className="bg-gray-600/30 backdrop-blur-sm hover:bg-gray-600/60 rounded-full h-10 w-10 transition-colors"
                 >
                     <IoIosArrowBack className="w-6 h-6 ml-[7px] text-gray-50" />
@@ -49,6 +50,7 @@ function FeaturedSlider({ posts }: FeaturedSliderProps) {
             <div className="absolute top-1/2 right-4">
                 <button
                     onClick={() => nextCard()}
+                    aria-label="다음 슬라이드 보기"
                     className="bg-gray-600/30  backdrop-blur-sm hover:bg-gray-600/60 rounded-full h-10 w-10 transition-colors"
                 >
                     <IoIosArrowForward className="w-6 h-6 ml-[9px] text-gray-50" />
@@ -61,6 +63,7 @@ function FeaturedSlider({ posts }: FeaturedSliderProps) {
                     <button
                         key={idx}
                         onClick={() => setCurrentSlide(idx)}
+                        aria-label={`${idx + 1}번 슬라이드로 이동`}
                         className={`hover:cursor-default ${currentSlide === idx ? "bg-gray-50 w-8" : "bg-gray-400 w-2"} h-2 rounded-xl transition-all`}
                     />
                 ))}
