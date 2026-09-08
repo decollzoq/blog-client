@@ -48,7 +48,7 @@ export function HomeLoadingSkeleton() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                {[1, 2, 3, 4].map((i) => (
+                {[1, 2, 3, 4, 5, 6].map((i) => (
                     <div key={i} className="flex flex-col">
                         <div className="w-full aspect-[4/3] rounded-2xl bg-gray-200 dark:bg-gray-700 mb-4" />
                         <div className="w-3/4 h-6 bg-gray-200 dark:bg-gray-700 rounded mb-3" />
