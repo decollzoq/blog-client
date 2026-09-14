@@ -1,9 +1,9 @@
-import { FaRegMoon } from "react-icons/fa";
-import { IoSunnyOutline } from "react-icons/io5";
+import {FaRegMoon} from "react-icons/fa";
+import {IoSunnyOutline} from "react-icons/io5";
 import useDarkMode from "../hooks/useDarkMode";
 
 function Header() {
-    const { isDark, toggle } = useDarkMode();
+    const {isDark, toggle} = useDarkMode();
 
     return (
         <header className="sticky top-0 bg-white dark:bg-gray-900 z-10">
@@ -19,6 +19,7 @@ function Header() {
                     </div>
                     <button
                         onClick={toggle}
+                        aria-label="다크 모드 전환"
                         className="hover:bg-gray-100 dark:hover:bg-gray-800 p-2 rounded-xl w-10 h-10 "
                     >
                         {isDark ? (
