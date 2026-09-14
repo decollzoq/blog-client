@@ -1,40 +1,11 @@
 import {useCategory} from "../contexts/providers/CategoryProvider";
-import {useState, useEffect} from "react";
-import {Category} from "../types/category";
 
 function CategoryFilter() {
-    const {category, setCategory} = useCategory();
-    const [categoryList, setCategoryList] = useState<Category[]>([]);
-    const [error, setError] = useState<string | null>(null);
-
-    async function fetchCategory() {
-        try {
-            const BASE_URL = process.env.REACT_APP_SERVER_URL;
-            const response = await fetch(`${BASE_URL}/api/categories`);
-            const res = await response.json();
-
-            // { success: true, data: [...] } 포맷 대응
-            const rawCategories = res.data || (Array.isArray(res) ? res : []);
-            setCategoryList(
-                rawCategories.filter(
-                    (c: Category) => c && c.name && c.name.trim() !== "",
-                ),
-            );
-        } catch (e) {
-            if (e instanceof Error) {
-                setError(e.message);
-            }
-            console.error("===== 카테고리 데이터 로드 실패 =====", e);
-        }
-    }
-
-    useEffect(() => {
-        fetchCategory();
-    }, []);
+    const {category, setCategory, categoryList, categoryError} = useCategory();
 
     return (
         <section className="my-12 flex space-x-3 items-center font-semibold max-w-4xl overflow-x-auto pb-2">
-            {error && <p className="text-red-500">{error}</p>}
+            {categoryError && <p className="text-red-500">{categoryError}</p>}
 
             {/* All 기본 버튼 */}
             <button
