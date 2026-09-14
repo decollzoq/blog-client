@@ -9,7 +9,7 @@ import {HomeLoadingSkeleton} from "../../components/LoadingSkeleton";
 function Home() {
     const {category} = useCategory();
     const [posts, setPosts] = useState<PostSummary[]>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
     const fetchPosts = useCallback(async () => {
@@ -39,22 +39,22 @@ function Home() {
             setIsLoading(false);
         }
     }, [category.slug]);
+
     useEffect(() => {
         fetchPosts();
     }, [fetchPosts]);
 
-    if (isLoading) {
-        return <HomeLoadingSkeleton />;
-    }
-
-    if (error) {
-        return <div className="text-center py-20 text-red-500">{error}</div>;
-    }
-
     return (
-        <div>
-            <main className="container max-w-4xl mx-auto px-6 py-12">
-                {error && <p>{error}</p>}
+        <div className="min-h-[85vh]">
+            <main className="container max-w-4xl mx-auto px-4 sm:px-6 py-12">
+                {error && (
+                    <div className="text-center py-20 text-red-500">
+                        {error}
+                    </div>
+                )}
+
+                {isLoading && !error && <HomeLoadingSkeleton />}
+
                 {!isLoading && !error && (
                     <>
                         {category.slug === "all" && posts.length > 0 && (
