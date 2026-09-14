@@ -2,7 +2,7 @@ import {useCategory} from "../../contexts/providers/CategoryProvider";
 import FeaturedSlider from "../../components/FeaturedSlider";
 import CategoryFilter from "../../components/CategoryFilter";
 import PostGrid from "../../components/PostGrid";
-import {useEffect, useState} from "react";
+import {useEffect, useState, useCallback} from "react";
 import {PostSummary} from "../../types/post";
 import {HomeLoadingSkeleton} from "../../components/LoadingSkeleton";
 
@@ -12,7 +12,7 @@ function Home() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
-    async function fetchPosts() {
+    const fetchPosts = useCallback(async () => {
         try {
             setIsLoading(true);
             setError(null);
@@ -38,10 +38,10 @@ function Home() {
         } finally {
             setIsLoading(false);
         }
-    }
+    }, [category.slug]);
     useEffect(() => {
         fetchPosts();
-    }, [category.slug]);
+    }, [fetchPosts]);
 
     if (isLoading) {
         return <HomeLoadingSkeleton />;
