@@ -1,7 +1,11 @@
-import { createBrowserRouter, RouterProvider } from "react-router";
+import {lazy, Suspense} from "react";
+import {createBrowserRouter, RouterProvider} from "react-router";
 import Home from "./pages/Home";
-import PostDetails from "./pages/PostDetails";
 import DefaultLayout from "./layouts/Default";
+import {PostDetailSkeleton} from "../components/LoadingSkeleton";
+
+const PostDetails = lazy(() => import("./pages/PostDetails"));
+
 const router = createBrowserRouter([
     {
         element: <DefaultLayout />,
@@ -12,7 +16,11 @@ const router = createBrowserRouter([
             },
             {
                 path: "/posts/:slug",
-                element: <PostDetails />,
+                element: (
+                    <Suspense fallback={<PostDetailSkeleton />}>
+                        <PostDetails />
+                    </Suspense>
+                ),
             },
         ],
     },
