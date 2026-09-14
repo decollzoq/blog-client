@@ -33,7 +33,7 @@ export function PostDetailSkeleton() {
 
 export function HomeLoadingSkeleton() {
     return (
-        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-pulse">
+        <main className="w-full animate-pulse">
             <div className="mb-12">
                 <div className="relative w-full aspect-[21/9] rounded-2xl bg-gray-200 dark:bg-gray-700"></div>
             </div>
