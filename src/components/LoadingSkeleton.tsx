@@ -33,7 +33,7 @@ export function PostDetailSkeleton() {
 
 export function HomeLoadingSkeleton() {
     return (
-        <main className="w-full animate-pulse">
+        <div className="w-full animate-pulse">
             <div className="mb-12">
                 <div className="relative w-full aspect-[21/9] rounded-2xl bg-gray-200 dark:bg-gray-700"></div>
             </div>
@@ -42,7 +42,7 @@ export function HomeLoadingSkeleton() {
                 {[1, 2, 3, 4].map((i) => (
                     <div
                         key={i}
-                        className="w-16 h-9 bg-gray-200 dark:bg-gray-700 rounded-full shrink-0"
+                        className="w-16 h-10 bg-gray-200 dark:bg-gray-700 rounded-3xl shrink-0"
                     ></div>
                 ))}
             </div>
@@ -60,6 +60,6 @@ export function HomeLoadingSkeleton() {
                     </div>
                 ))}
             </div>
-        </main>
+        </div>
     );
 }

@@ -45,8 +45,8 @@ function Home() {
     }, [fetchPosts]);
 
     return (
-        <div>
-            <main className="container max-w-4xl mx-auto px-6 py-12">
+        <div className="min-h-[85vh]">
+            <main className="container max-w-4xl mx-auto px-4 sm:px-6 py-12">
                 {error && (
                     <div className="text-center py-20 text-red-500">
                         {error}
