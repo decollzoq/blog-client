@@ -1,22 +1,28 @@
 function Footer() {
     return (
-        <footer className="border-t-[1px] py-8 px-64 border-t-gray-200/50 font-light text-sm">
-            <div className="flex flex-col items-center gap-4 justify-center">
-                <div className="flex space-x-6 items-center">
+        <footer className="border-t-[1px] py-8 px-6 sm:px-12 border-t-gray-200/50 dark:border-t-gray-800 font-light text-sm text-gray-500 dark:text-gray-400">
+            <div className="container max-w-4xl mx-auto flex flex-col items-center gap-4 justify-center">
+                <nav className="flex space-x-6 items-center">
                     <a
                         href="https://github.com/decollzoq"
-                        className="hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg p-2"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg p-2 transition-colors"
                     >
-                        GitHub{" "}
+                        GitHub
                     </a>
                     <a
                         href="https://velog.io/@decollzoq/posts"
-                        className="hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg p-2"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg p-2 transition-colors"
                     >
                         Velog
                     </a>
-                </div>
-                <h1>© 2026. ParkMinSeon All rights reserved.</h1>
+                </nav>
+                <p className="text-xs text-center text-gray-400">
+                    © 2026. ParkMinSeon All rights reserved.
+                </p>
             </div>
         </footer>
     );
