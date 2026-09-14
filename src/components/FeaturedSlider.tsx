@@ -17,11 +17,17 @@ function FeaturedSlider({posts}: FeaturedSliderProps) {
         setCurrentSlide((prev) => (prev === 0 ? posts.length - 1 : prev - 1));
     }
     return (
-        <div className="container max-w-full relative aspect-[21/9] rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-500">
+        <section
+            aria-label="최신 포스트 슬라이더"
+            className="container max-w-full relative aspect-[21/9] rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-500"
+        >
             <a href={`/posts/${slidePost.slug}`}>
                 <img
                     src={slidePost.thumbnail}
                     alt={slidePost.title}
+                    fetchPriority="high"
+                    loading="eager"
+                    decoding="async"
                     className="object-cover w-full h-full"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900/70 via-gray-900/20 to-transparent" />
@@ -58,17 +64,25 @@ function FeaturedSlider({posts}: FeaturedSliderProps) {
             </div>
 
             {/* 인디케이터 */}
-            <div className="absolute bottom-4 max-w-full container flex items-center justify-center space-x-2">
-                {posts.map((p, idx) => (
+            <div className="absolute bottom-3 w-full flex items-center justify-center space-x-1">
+                {posts.map((_, idx) => (
                     <button
                         key={idx}
                         onClick={() => setCurrentSlide(idx)}
                         aria-label={`${idx + 1}번 슬라이드로 이동`}
-                        className={`hover:cursor-default ${currentSlide === idx ? "bg-gray-50 w-8" : "bg-gray-400 w-2"} h-2 rounded-xl transition-all`}
-                    />
+                        className="py-3 px-1.5 flex items-center justify-center focus:outline-none"
+                    >
+                        <span
+                            className={`block h-2 rounded-full transition-all ${
+                                currentSlide === idx
+                                    ? "bg-white w-7"
+                                    : "bg-white/50 hover:bg-white/80 w-2"
+                            }`}
+                        />
+                    </button>
                 ))}
             </div>
-        </div>
+        </section>
     );
 }
 
