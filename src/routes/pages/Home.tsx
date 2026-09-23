@@ -8,13 +8,34 @@ import {HomeLoadingSkeleton} from "../../components/LoadingSkeleton";
 
 function Home() {
     const {category} = useCategory();
-    const [posts, setPosts] = useState<PostSummary[]>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
+
+    // window에 주입된 초기 데이터가 있는지 확인
+    const initialPosts =
+        typeof window !== "undefined" ? window.__INITIAL_POST__ : undefined;
+
+    // 초기 데이터가 있으면 즉시 상태로 주입]
+    const [posts, setPosts] = useState<PostSummary[]>(() => {
+        if (category.slug === "all" || !category.slug) {
+            return initialPosts || [];
+        }
+        return [];
+    });
+
+    // 초기 데이터가 있으면 로딩을 false로 시작해 스켈레톤 UI 스킵
+    const [isLoading, setIsLoading] = useState<boolean>(() => {
+        if (category.slug === "all" || !category.slug) {
+            return !initialPosts;
+        }
+        return true;
+    });
+
     const [error, setError] = useState<string | null>(null);
 
     const fetchPosts = useCallback(async () => {
         try {
-            setIsLoading(true);
+            if (!posts.length) {
+                setIsLoading(true);
+            }
             setError(null);
             const queryParam =
                 category.slug === "all" || !category.slug
@@ -24,7 +45,11 @@ function Home() {
                 `${process.env.REACT_APP_SERVER_URL}/api/posts${queryParam}`,
             );
 
-            const res = await response.json();
+            const res = (await response.json()) as {
+                success: boolean;
+                data: PostSummary[];
+            };
+
             if (res.success && Array.isArray(res.data)) {
                 setPosts(res.data);
             } else {
@@ -37,8 +62,11 @@ function Home() {
             console.error("===== 포스트 데이터 로드 실패 =====", e);
         } finally {
             setIsLoading(false);
+            if (typeof window !== "undefined") {
+                window.__INITIAL_POST__ = undefined;
+            }
         }
-    }, [category.slug]);
+    }, [category.slug, posts.length]);
 
     useEffect(() => {
         fetchPosts();
