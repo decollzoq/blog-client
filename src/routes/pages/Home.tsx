@@ -11,7 +11,7 @@ function Home() {
 
     // window에 주입된 초기 데이터가 있는지 확인
     const initialPosts =
-        typeof window !== "undefined" ? window.__INITIAL_POST__ : undefined;
+        typeof window !== "undefined" ? window.__INITIAL_POSTS__ : undefined;
 
     // 초기 데이터가 있으면 즉시 상태로 주입]
     const [posts, setPosts] = useState<PostSummary[]>(() => {
@@ -63,7 +63,7 @@ function Home() {
         } finally {
             setIsLoading(false);
             if (typeof window !== "undefined") {
-                window.__INITIAL_POST__ = undefined;
+                window.__INITIAL_POSTS__ = undefined;
             }
         }
     }, [category.slug, posts.length]);
