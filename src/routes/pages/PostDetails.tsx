@@ -1,5 +1,5 @@
 import {useParams} from "react-router";
-import {useEffect, useState, useCallback} from "react";
+import {useEffect, useState, useCallback, useRef} from "react";
 import PostNavigation from "../../components/PostNavigation";
 import MarkdownViewer from "../../components/MarkdownViewer";
 import PostHeader from "../../components/PostHeader";
@@ -9,17 +9,36 @@ import {PostDetailSkeleton} from "../../components/LoadingSkeleton";
 
 function PostDetails() {
     const {slug} = useParams<string>();
-    const [post, setPost] = useState<Post>();
-    const [isLoading, setIsLoading] = useState(true);
+
+    // window에 주입된 초기 포스트 상세 데이터 확인
+    const initialPost =
+        typeof window !== "undefined" &&
+        window.__INITIAL_POST_DETAIL__?.slug === slug
+            ? window.__INITIAL_POST_DETAIL__
+            : undefined;
+
+    // 첫 진입 시 주입 데이터 소비 여부 기억
+    const hasInitialData = useRef(Boolean(initialPost));
+
+    // 주입 데이터가 있으면 즉시 post 상태로 바인딩
+    const [post, setPost] = useState<Post | undefined>(initialPost);
+
+    // 주입 데이터가 있으면 스켈레톤을 0초로 스킵 (false로 시작)
+    const [isLoading, setIsLoading] = useState<boolean>(!initialPost);
     const [error, setError] = useState<string | null>(null);
 
     const fetchPostDetail = useCallback(async () => {
         if (!slug) return;
         try {
-            setIsLoading(true);
+            // 주입 데이터가 없을 때만 로딩 스켈레톤 활성화
+            if (!hasInitialData.current) {
+                setIsLoading(true);
+            }
             setError(null);
+
+            const encodedSlug = encodeURIComponent(slug);
             const response = await fetch(
-                `${process.env.REACT_APP_SERVER_URL}/api/posts/${slug}`,
+                `${process.env.REACT_APP_SERVER_URL}/api/posts/${encodedSlug}`,
             );
             const res = await response.json();
             if (res.success && res.data) {
@@ -34,11 +53,19 @@ function PostDetails() {
             console.error("===== 데이터 로드 실패 =====", e);
         } finally {
             setIsLoading(false);
+            // 첫 진입 소비 완료 후 플래그 및 window 변수 해제
+            hasInitialData.current = false;
+            if (typeof window !== "undefined") {
+                window.__INITIAL_POST_DETAIL__ = undefined;
+            }
         }
     }, [slug]);
 
     useEffect(() => {
-        setPost(undefined);
+        // 첫 진입 주입 데이터가 없을 때만 상태 비우기 (다른 글로 이동 시 대응)
+        if (!hasInitialData.current) {
+            setPost(undefined);
+        }
         fetchPostDetail();
     }, [fetchPostDetail]);
 
