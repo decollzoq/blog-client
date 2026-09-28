@@ -65,7 +65,7 @@ function PostDetails() {
 
     const fetchPostDetail = useCallback(async () => {
         if (!slug) return;
-        if (!hasInitialData.current) {
+        if (hasInitialData.current) {
             return;
         }
         try {
