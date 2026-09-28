@@ -1,3 +1,4 @@
+import {Link} from "react-router";
 import {PostSummary} from "../types/post";
 
 function PostCard({post}: {post: PostSummary}) {
@@ -6,7 +7,11 @@ function PostCard({post}: {post: PostSummary}) {
             key={post.id}
             className="hover:text-primary hover:-translate-y-2 transition-transform duration-500"
         >
-            <a href={`/posts/${post.slug}`}>
+            <Link
+                to={`/posts/${post.slug}`}
+                state={{postSummary: post}}
+                className="block"
+            >
                 <div className="container flex flex-col">
                     <div className="relative">
                         <img
@@ -40,7 +45,7 @@ function PostCard({post}: {post: PostSummary}) {
                         </p>
                     </div>
                 </div>
-            </a>
+            </Link>
         </article>
     );
 }

@@ -1,4 +1,5 @@
 import {IoIosArrowBack, IoIosArrowForward} from "react-icons/io";
+import {Link} from "react-router"; // Link 임포트 추가
 import {PostSummary} from "../types/post";
 import {useState} from "react";
 
@@ -24,8 +25,10 @@ function FeaturedSlider({posts}: FeaturedSliderProps) {
             aria-label="주요 포스트 슬라이더"
             className="container max-w-full relative aspect-[21/9] rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800"
         >
-            <a
-                href={`/posts/${slidePost.slug}`}
+            {/* a 태그 대신 Link 사용 및 state로 슬라이드 글 요약 정보 전달 */}
+            <Link
+                to={`/posts/${slidePost.slug}`}
+                state={{postSummary: slidePost}}
                 className="block w-full h-full"
             >
                 <img
@@ -47,7 +50,7 @@ function FeaturedSlider({posts}: FeaturedSliderProps) {
                         )}
                     </p>
                 </div>
-            </a>
+            </Link>
 
             {/* 슬라이더 컨트롤 */}
             <div className="absolute top-1/2 -translate-y-1/2 left-4">
