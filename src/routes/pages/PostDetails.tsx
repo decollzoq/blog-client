@@ -136,7 +136,9 @@ function PostDetails() {
                 <img
                     src={post.thumbnail}
                     alt={post.title}
-                    className="rounded-3xl max-h-[468px] w-full object-cover"
+                    fetchPriority="high"
+                    loading="eager"
+                    className="rounded-3xl max-h-[468px] aspect-[16/9] w-full object-cover"
                 />
 
                 {/* 본문 영역: 카드 클릭 진입 시 본문 fetch 대기 중에만 가벼운 펄스 스켈레톤 표시 */}
