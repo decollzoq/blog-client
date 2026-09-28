@@ -28,8 +28,8 @@ declare class HTMLRewriter {
 export const onRequestGet: PagesFunction<Env, "slug"> = async (context) => {
     // Pages 빌드 결과물인 정적 index.html 원본 가져오기
     const response = await context.next();
-
     const slug = context.params.slug;
+
     if (!slug || typeof slug !== "string") {
         return response;
     }
@@ -41,8 +41,7 @@ export const onRequestGet: PagesFunction<Env, "slug"> = async (context) => {
     let initialPostJson = "null";
 
     try {
-        const encodedSlug = encodeURIComponent(slug);
-        const apiRes = await fetch(`${serverUrl}/api/posts/${encodedSlug}`);
+        const apiRes = await fetch(`${serverUrl}/api/posts/${slug}`);
         if (apiRes.ok) {
             const result = (await apiRes.json()) as {
                 success: boolean;
@@ -69,7 +68,7 @@ export const onRequestGet: PagesFunction<Env, "slug"> = async (context) => {
         .on("head", {
             element(element: any) {
                 element.append(
-                    `\n<script>window.__INITIAL_POST__ = ${initialPostJson};</script>\n`,
+                    `\n<script>window.__INITIAL_POST_DETAIL__ = ${initialPostJson};</script>\n`,
                     {html: true},
                 );
             },

@@ -13,7 +13,9 @@ function PostDetails() {
     // window에 주입된 초기 포스트 상세 데이터 확인
     const initialPost =
         typeof window !== "undefined" &&
-        window.__INITIAL_POST_DETAIL__?.slug === slug
+        window.__INITIAL_POST_DETAIL__ &&
+        (window.__INITIAL_POST_DETAIL__.slug === slug ||
+            String(window.__INITIAL_POST_DETAIL__.id) === slug)
             ? window.__INITIAL_POST_DETAIL__
             : undefined;
 
