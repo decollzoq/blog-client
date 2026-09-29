@@ -6,9 +6,12 @@ module.exports = {
         extend: {
             colors: {
                 primary: {
-                    light: "#a8dff0",
-                    DEFAULT: "#87ceeb",
-                    dark: "#5fa8d3",
+                    // 은은한 라이트 배경 틴트나 연한 태그용
+                    light: "#F4F4F5", // zinc-100
+                    // 라이트 모드 메인 포인트: 묵직한 딥 블랙/차콜
+                    DEFAULT: "#18181B", // zinc-900
+                    // 다크 모드(dark:bg-primary-dark 등) 포인트: 선명하고 깨끗한 화이트
+                    dark: "#FAFAFA", // zinc-50
                 },
                 gray: {
                     50: "#F9FAFB",

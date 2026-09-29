@@ -27,7 +27,7 @@ function MarkdownViewer({content}: Props) {
                             return (
                                 <code
                                     {...rest}
-                                    className="before:content-none after:content-none bg-gray-100 dark:bg-gray-800 text-primary-dark dark:text-primary px-1.5 py-0.5 rounded font-mono text-[0.875rem]"
+                                    className="before:content-none after:content-none bg-gray-100 dark:bg-gray-800/80 text-rose-600 dark:text-rose-400 border border-gray-200 dark:border-gray-700/60 px-1.5 py-0.5 rounded font-mono text-[0.875rem] font-medium"
                                 >
                                     {children}
                                 </code>
@@ -57,7 +57,7 @@ function MarkdownViewer({content}: Props) {
                             </SyntaxHighlighter>
                         );
                     },
-                    // Velog 인라인 HTML img 및 표준 마크다운 이미지 공통 처리
+
                     img({node, ...props}) {
                         return (
                             <img

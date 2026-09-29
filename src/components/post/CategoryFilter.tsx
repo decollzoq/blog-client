@@ -1,4 +1,4 @@
-import {useCategory} from "../contexts/providers/CategoryProvider";
+import {useCategory} from "../../contexts/CategoryProvider";
 
 function CategoryFilter() {
     const {category, setCategory, categoryList, categoryError} = useCategory();
@@ -11,11 +11,11 @@ function CategoryFilter() {
             <button
                 onClick={() => setCategory({slug: "all", name: "All"})}
                 className={`h-10 px-4 rounded-3xl shrink-0 transition-colors
-                        ${
-                            category.slug === "all"
-                                ? "bg-primary text-gray-50 dark:bg-primary-dark"
-                                : "bg-gray-50 text-gray-600 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
-                        }`}
+            ${
+                category.slug === "all"
+                    ? "bg-primary text-gray-50 dark:bg-primary-dark dark:text-gray-900"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+            }`}
             >
                 All
             </button>
@@ -28,11 +28,11 @@ function CategoryFilter() {
                             key={c.slug}
                             onClick={() => setCategory(c)}
                             className={`h-10 px-4 rounded-3xl transition-colors
-                        ${
-                            category.slug === c.slug
-                                ? "bg-primary text-gray-50 dark:bg-primary-dark"
-                                : "bg-gray-50 text-gray-600 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
-                        }`}
+            ${
+                category.slug === c.slug
+                    ? "bg-primary text-gray-50 dark:bg-primary-dark dark:text-gray-900"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+            }`}
                         >
                             {c.name}
                         </button>

@@ -1,7 +1,7 @@
 import {useState, useEffect, useRef} from "react";
-import {PostSummary} from "../types/post";
+import {PostSummary} from "../../types/post";
 import PostCard from "./PostCard";
-import Pagination from "./Pagination";
+import Pagination from "../common/Pagination";
 
 interface PostGridProps {
     posts: PostSummary[];
@@ -27,7 +27,7 @@ function PostGrid({posts}: PostGridProps) {
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
-        // 번호 클릭 시 포스트 그리드 상단으로 부드럽게 스크롤
+        // 번호 클릭 시 포스트 목록 상단으로 부드럽게 스크롤
         if (gridRef.current) {
             gridRef.current.scrollIntoView({
                 behavior: "smooth",
@@ -45,9 +45,11 @@ function PostGrid({posts}: PostGridProps) {
     }
 
     return (
-        <section ref={gridRef} className="mb-16 max-w-4xl mx-auto scroll-mt-20">
-            {/* 카드 2x2 격자 레이아웃 */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 items-start max-w-full">
+        <section
+            ref={gridRef}
+            className="mb-16 max-w-4xl mx-auto scroll-mt-20 px-2 sm:px-0"
+        >
+            <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800/80">
                 {currentPosts.map((post) => (
                     <PostCard key={post.id} post={post} />
                 ))}

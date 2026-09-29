@@ -1,11 +1,11 @@
 import {useParams, useLocation} from "react-router";
 import {useEffect, useState, useCallback, useRef, useMemo} from "react";
-import PostNavigation from "../../components/PostNavigation";
-import MarkdownViewer from "../../components/MarkdownViewer";
-import PostHeader from "../../components/PostHeader";
-import PostTagList from "../../components/PostTagList";
+import PostNavigation from "../../components/post/PostNavigation";
+import MarkdownViewer from "../../components/post/MarkdownViewer";
+import PostHeader from "../../components/post/PostHeader";
+import PostTagList from "../../components/post/PostTagList";
 import {Post, PostSummary} from "../../types/post";
-import {PostDetailSkeleton} from "../../components/LoadingSkeleton";
+import {PostDetailSkeleton} from "../../components/common/LoadingSkeleton";
 
 interface Locationstate {
     postSummary?: PostSummary;
