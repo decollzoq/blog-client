@@ -6,6 +6,8 @@ import PostHeader from "../../components/post/PostHeader";
 import PostTagList from "../../components/post/PostTagList";
 import {Post, PostSummary} from "../../types/post";
 import {PostDetailSkeleton} from "../../components/common/LoadingSkeleton";
+import TOC from "../../components/post/TOC";
+import ScrollToTopButton from "../../components/common/ScrollToTopButton";
 
 interface LocationState {
     postSummary?: PostSummary;
@@ -135,8 +137,9 @@ function PostDetails() {
 
     return (
         <div>
-            <main className="max-w-4xl mx-auto px-6 py-12 mb-20">
-                {/* 헤더와 썸네일은 summaryPost를 통해 0ms 만에 즉시 표시 */}
+            <main className="relative max-w-4xl mx-auto px-6 py-12 mb-20">
+                {/* 글 우측 목차 (xl 이상 화면에서만 표시) */}
+                {post.content && <TOC content={post.content} />}
                 <PostHeader post={post} />
                 <img
                     src={post.thumbnail}
@@ -172,6 +175,7 @@ function PostDetails() {
                     />
                 </footer>
             </main>
+            <ScrollToTopButton />
         </div>
     );
 }
