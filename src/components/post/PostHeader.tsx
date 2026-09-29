@@ -1,12 +1,12 @@
-import { Post } from "../types/post";
+import {Post} from "../../types/post";
 interface Props {
     post: Post;
 }
-function PostHeader({ post }: Props) {
+function PostHeader({post}: Props) {
     return (
         <header className="flex flex-col items-start gap-4 mb-8">
             <div className="flex flex-row items-center gap-3">
-                <div className="text-sm bg-primary text-gray-50 rounded-3xl px-3 py-1 dark:bg-primary-dark">
+                <div className="text-sm font-medium bg-primary text-gray-50 rounded-3xl px-3 py-1 dark:bg-primary-dark dark:text-gray-900">
                     {post.categoryName}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">

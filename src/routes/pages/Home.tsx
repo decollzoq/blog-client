@@ -1,10 +1,10 @@
-import {useCategory} from "../../contexts/providers/CategoryProvider";
-import FeaturedSlider from "../../components/FeaturedSlider";
-import CategoryFilter from "../../components/CategoryFilter";
-import PostGrid from "../../components/PostGrid";
+import {useCategory} from "../../contexts/CategoryProvider";
+import FeaturedSlider from "../../components/post/FeaturedSlider";
+import CategoryFilter from "../../components/post/CategoryFilter";
+import PostGrid from "../../components/post/PostGrid";
 import {useEffect, useState, useCallback} from "react";
 import {PostSummary} from "../../types/post";
-import {HomeLoadingSkeleton} from "../../components/LoadingSkeleton";
+import {HomeLoadingSkeleton} from "../../components/common/LoadingSkeleton";
 
 function Home() {
     const {category} = useCategory();

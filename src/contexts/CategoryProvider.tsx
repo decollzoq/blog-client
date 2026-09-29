@@ -1,7 +1,7 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
-import {Category} from "../../types/category";
+import {Category} from "../types/category";
 
-interface CategroyState {
+interface CategoryState {
     category: Category;
     setCategory: (category: Category) => void;
     categoryList: Category[];
@@ -9,7 +9,7 @@ interface CategroyState {
     categoryError: string | null;
 }
 
-const CategoryContext = createContext<CategroyState | null>(null);
+const CategoryContext = createContext<CategoryState | null>(null);
 
 export function CategoryProvider({children}: {children: React.ReactNode}) {
     const [category, setCategory] = useState<Category>({
@@ -76,7 +76,7 @@ export function CategoryProvider({children}: {children: React.ReactNode}) {
 export function useCategory() {
     const context = useContext(CategoryContext);
     if (!context) {
-        throw new Error("useCategory must be used within a CategroyProvider");
+        throw new Error("useCategory must be used within a CategoryProvider");
     }
     return context;
 }

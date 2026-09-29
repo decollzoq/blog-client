@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 
 interface Props {
     children: React.ReactNode;
     delay?: number;
 }
 
-function DefferedComponent({ children, delay = 200 }: Props) {
+function DeferredComponent({children, delay = 200}: Props) {
     const [isDeffered, setIsDeffered] = useState(false);
 
     useEffect(() => {
@@ -21,4 +21,4 @@ function DefferedComponent({ children, delay = 200 }: Props) {
     return <>{children}</>;
 }
 
-export default DefferedComponent;
+export default DeferredComponent;
