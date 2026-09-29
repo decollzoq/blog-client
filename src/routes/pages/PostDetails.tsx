@@ -7,16 +7,16 @@ import PostTagList from "../../components/post/PostTagList";
 import {Post, PostSummary} from "../../types/post";
 import {PostDetailSkeleton} from "../../components/common/LoadingSkeleton";
 
-interface Locationstate {
+interface LocationState {
     postSummary?: PostSummary;
 }
 
 function PostDetails() {
     const {slug} = useParams<string>();
     const location = useLocation();
-    const routerState = location.state as Locationstate | null;
+    const routerState = location.state as LocationState | null;
 
-    // Cold Visit : window에 주입된 초기 포스트 상세 데이터 확인
+    // Cold Visit: window에 주입된 초기 포스트 상세 데이터 확인
     const initialPost = useMemo(() => {
         if (typeof window === "undefined" || !window.__INITIAL_POST_DETAIL__) {
             return undefined;
@@ -33,7 +33,7 @@ function PostDetails() {
         return isMatched ? injected : undefined;
     }, [slug]);
 
-    // SPA 대응 : 홈 화면 카드에서 넘겨받은 요약 정보
+    // SPA 대응: 홈 화면 카드 또는 PostNavigation에서 state로 넘겨받은 요약 정보
     const summaryPost = useMemo(() => {
         if (routerState?.postSummary && routerState.postSummary.slug === slug) {
             return {
@@ -44,7 +44,7 @@ function PostDetails() {
         return undefined;
     }, [routerState, slug]);
 
-    // Cold Visit으로 본문까지 데이터 가지고 있는지 여부 체크
+    // Cold Visit 최초 1회 감지용 플래그
     const hasInitialData = useRef(Boolean(initialPost));
 
     // 화면에 그릴 초기 상태 : 주입 데이터 > 전달받은 요약 데이터 > undefined
@@ -52,12 +52,12 @@ function PostDetails() {
         () => initialPost || summaryPost,
     );
 
-    // 전체 스켈레톤 여부 : initialPost 나 summaryPost 둘 둥 하나라도 있으면 표시하지 않음
+    // 전체 스켈레톤: initialPost도 없고 summaryPost도 없는 직접 URL 진입일 때만 true
     const [isLoading, setIsLoading] = useState<boolean>(
         !initialPost && !summaryPost,
     );
 
-    // 본문 스켈레톤 여부 : summaryPost만 있고 본문이 없을 때만 ture
+    // 본문 스켈레톤: 요약 정보만 있고 본문 content가 아직 없을 때 true
     const [isContentLoading, setIsContentLoading] = useState<boolean>(
         Boolean(summaryPost && !initialPost),
     );
@@ -65,9 +65,13 @@ function PostDetails() {
 
     const fetchPostDetail = useCallback(async () => {
         if (!slug) return;
+
+        // Cold Visit 첫 렌더링 시 주입된 데이터를 사용한 경우 한 번만 건너뛰고 플래그 해제
         if (hasInitialData.current) {
+            hasInitialData.current = false;
             return;
         }
+
         try {
             if (!summaryPost) {
                 setIsLoading(true);
@@ -100,18 +104,19 @@ function PostDetails() {
     }, [slug, summaryPost]);
 
     useEffect(() => {
-        // 이미 완성된 데이터를 가지고 들어온 Cold Visit이면 아무것도 하지 않음
-        if (hasInitialData.current) {
-            return;
-        }
-
-        // SPA 내부 이동인데 state도 없는 경우(예: 직접 URL을 바꿔친 경우)만 초기화
-        if (!summaryPost) {
+        // state가 있으면 헤더/썸네일을 0ms 만에 즉시 렌더링하고 본문 로딩 펄스 켬
+        if (summaryPost) {
+            setPost(summaryPost);
+            setIsLoading(false);
+            setIsContentLoading(true);
+        } else if (!hasInitialData.current) {
+            // 직접 URL 입력 진입 시에만 전체 스켈레톤 노출
             setPost(undefined);
+            setIsLoading(true);
         }
 
         fetchPostDetail();
-    }, [fetchPostDetail, summaryPost]);
+    }, [slug, fetchPostDetail, summaryPost]);
 
     // 아무런 데이터도 없을 때만 전체 스켈레톤 렌더링
     if (isLoading && !post) {
@@ -131,7 +136,7 @@ function PostDetails() {
     return (
         <div>
             <main className="max-w-4xl mx-auto px-6 py-12 mb-20">
-                {/* 헤더와 썸네일은 initialPost 또는 summaryPost를 통해 0ms 만에 즉시 표시 */}
+                {/* 헤더와 썸네일은 summaryPost를 통해 0ms 만에 즉시 표시 */}
                 <PostHeader post={post} />
                 <img
                     src={post.thumbnail}
@@ -141,12 +146,12 @@ function PostDetails() {
                     className="rounded-3xl max-h-[468px] aspect-[16/9] w-full object-cover"
                 />
 
-                {/* 본문 영역: 카드 클릭 진입 시 본문 fetch 대기 중에만 가벼운 펄스 스켈레톤 표시 */}
-                {isContentLoading && !post.content ? (
+                {/* 본문 영역: 본문 fetch 대기 중에만 가벼운 펄스 스켈레톤 표시 */}
+                {isContentLoading || !post.content ? (
                     <div className="py-16 space-y-4 animate-pulse">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-full"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-5/6"></div>
                     </div>
                 ) : (
                     <MarkdownViewer content={post.content} />

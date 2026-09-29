@@ -22,6 +22,7 @@ function PostNavigation({prevPost, nextPost}: NavigationProps) {
                 {nextPost && (
                     <Link
                         to={`/posts/${nextPost.slug}`}
+                        state={{postSummary: nextPost}}
                         className="p-4 flex space-x-4 items-center w-full text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800/70 rounded-xl transition-colors group"
                     >
                         <IoIosArrowBack className="text-2xl text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
@@ -40,6 +41,7 @@ function PostNavigation({prevPost, nextPost}: NavigationProps) {
                 {prevPost && (
                     <Link
                         to={`/posts/${prevPost.slug}`}
+                        state={{postSummary: prevPost}}
                         className="p-4 flex space-x-4 items-center w-full justify-end text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800/70 rounded-xl transition-colors group"
                     >
                         <div className="flex flex-col items-end gap-1 min-w-0">
