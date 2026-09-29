@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-white text-gray-900;
+    }
+
+    .dark body {
+        /* 깃허브 다크모드 기본 배경(#0d1117) 적용 */
+        @apply bg-[#0d1117] text-gray-100;
+    }
+}
