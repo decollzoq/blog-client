@@ -1,4 +1,5 @@
 import ReactMarkdown from "react-markdown";
+import rehypeSlug from "rehype-slug";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import {Prism as SyntaxHighlighter} from "react-syntax-highlighter";
@@ -12,7 +13,8 @@ function MarkdownViewer({content}: Props) {
     return (
         <article className="prose my-12 dark:prose-invert max-w-none">
             <ReactMarkdown
-                rehypePlugins={[rehypeRaw]}
+                // rehypePlugins는 하나의 배열로 통합
+                rehypePlugins={[rehypeRaw, rehypeSlug]}
                 remarkPlugins={[remarkGfm]}
                 components={{
                     pre({children}) {
