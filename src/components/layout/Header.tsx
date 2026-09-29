@@ -1,15 +1,27 @@
 import {FaRegMoon} from "react-icons/fa";
 import {IoSunnyOutline} from "react-icons/io5";
-import {Link} from "react-router";
+import {Link, useLocation} from "react-router";
 import useDarkMode from "../../hooks/useDarkMode";
 
 function Header() {
     const {isDark, toggle} = useDarkMode();
+    const location = useLocation();
+
+    const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        if (location.pathname === "/") {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: "smooth"});
+        }
+    };
 
     return (
         <header className="sticky top-0 bg-white/80 dark:bg-[#0d1117]/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800/60 z-50 transition-colors">
             <nav className="container max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
-                <Link to="/" className="flex items-center">
+                <Link
+                    to="/"
+                    onClick={handleHomeClick}
+                    className="flex items-center"
+                >
                     <h1 className="font-bold text-2xl tracking-tight text-gray-900 dark:text-gray-100">
                         SEON
                     </h1>
@@ -19,6 +31,7 @@ function Header() {
                     <div>
                         <Link
                             to="/"
+                            onClick={handleHomeClick}
                             className="text-base font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
                         >
                             Home
