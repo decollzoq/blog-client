@@ -2,6 +2,7 @@ import {Link} from "react-router";
 import {IoIosArrowBack} from "react-icons/io";
 import {IoIosArrowForward} from "react-icons/io";
 import {PostNav} from "../../types/post";
+import {prefetchPostDetail} from "../../utils/prefetch";
 
 interface NavigationProps {
     prevPost?: PostNav | null;
@@ -23,6 +24,8 @@ function PostNavigation({prevPost, nextPost}: NavigationProps) {
                     <Link
                         to={`/posts/${nextPost.slug}`}
                         state={{postSummary: nextPost}}
+                        onMouseEnter={() => prefetchPostDetail(nextPost.slug)}
+                        onTouchStart={() => prefetchPostDetail(nextPost.slug)}
                         className="p-4 flex space-x-4 items-center w-full text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800/70 rounded-xl transition-colors group"
                     >
                         <IoIosArrowBack className="text-2xl text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
@@ -42,6 +45,8 @@ function PostNavigation({prevPost, nextPost}: NavigationProps) {
                     <Link
                         to={`/posts/${prevPost.slug}`}
                         state={{postSummary: prevPost}}
+                        onMouseEnter={() => prefetchPostDetail(prevPost.slug)}
+                        onTouchStart={() => prefetchPostDetail(prevPost.slug)}
                         className="p-4 flex space-x-4 items-center w-full justify-end text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800/70 rounded-xl transition-colors group"
                     >
                         <div className="flex flex-col items-end gap-1 min-w-0">

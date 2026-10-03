@@ -1,4 +1,5 @@
 import {Link} from "react-router";
+import {prefetchPostDetail} from "../../utils/prefetch";
 import {PostSummary} from "../../types/post";
 
 function PostCard({post}: {post: PostSummary}) {
@@ -7,6 +8,8 @@ function PostCard({post}: {post: PostSummary}) {
             <Link
                 to={`/posts/${post.slug}`}
                 state={{postSummary: post}}
+                onMouseEnter={() => prefetchPostDetail(post.slug)}
+                onTouchStart={() => prefetchPostDetail(post.slug)}
                 className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-6 md:gap-10"
             >
                 {/* 좌측: 카테고리, 제목, 요약/태그, 날짜 */}
