@@ -8,6 +8,7 @@ import {Post, PostSummary} from "../../types/post";
 import {PostDetailSkeleton} from "../../components/common/LoadingSkeleton";
 import TOC from "../../components/post/TOC";
 import ScrollToTopButton from "../../components/common/ScrollToTopButton";
+import {getCachedPost, checkPostCacheSync} from "../../utils/prefetch";
 
 interface LocationState {
     postSummary?: PostSummary;
@@ -35,7 +36,12 @@ function PostDetails() {
         return isMatched ? injected : undefined;
     }, [slug]);
 
-    // SPA 대응: 홈 화면 카드 또는 PostNavigation에서 state로 넘겨받은 요약 정보
+    // SPA 대응: 호버로 이미 받아둔 메모리 캐시 확인 (0ms 동기 조회)
+    const cachedPost = useMemo(() => {
+        return slug ? checkPostCacheSync(slug) : undefined;
+    }, [slug]);
+
+    // SPA 대응: 홈 화면 카드 또는 PostNavigation에서 넘겨받은 요약 정보
     const summaryPost = useMemo(() => {
         if (routerState?.postSummary && routerState.postSummary.slug === slug) {
             return {
@@ -49,45 +55,38 @@ function PostDetails() {
     // Cold Visit 최초 1회 감지용 플래그
     const hasInitialData = useRef(Boolean(initialPost));
 
-    // 화면에 그릴 초기 상태 : 주입 데이터 > 전달받은 요약 데이터 > undefined
+    // 화면 초기 상태: 주입 데이터 > 인메모리 캐시 데이터 > 요약 데이터 > undefined
     const [post, setPost] = useState<Post | undefined>(
-        () => initialPost || summaryPost,
+        () => initialPost || cachedPost || summaryPost,
     );
 
-    // 전체 스켈레톤: initialPost도 없고 summaryPost도 없는 직접 URL 진입일 때만 true
+    // 전체 스켈레톤: 셋 다 없는 직접 URL 진입일 때만 true
     const [isLoading, setIsLoading] = useState<boolean>(
-        !initialPost && !summaryPost,
+        !initialPost && !cachedPost && !summaryPost,
     );
 
-    // 본문 스켈레톤: 요약 정보만 있고 본문 content가 아직 없을 때 true
+    // 본문 스켈레톤: 요약 정보만 있고 본문 content가 아직 비어있을 때만 true
     const [isContentLoading, setIsContentLoading] = useState<boolean>(
-        Boolean(summaryPost && !initialPost),
+        Boolean(summaryPost && !initialPost && !cachedPost?.content),
     );
     const [error, setError] = useState<string | null>(null);
 
     const fetchPostDetail = useCallback(async () => {
         if (!slug) return;
 
-        // Cold Visit 첫 렌더링 시 주입된 데이터를 사용한 경우 한 번만 건너뛰고 플래그 해제
+        // Cold Visit 첫 렌더링 시 주입된 데이터를 사용한 경우 1회 건너뜀
         if (hasInitialData.current) {
             hasInitialData.current = false;
             return;
         }
 
         try {
-            if (!summaryPost) {
-                setIsLoading(true);
-            } else {
-                setIsContentLoading(true);
-            }
             setError(null);
 
-            const response = await fetch(
-                `${process.env.REACT_APP_SERVER_URL}/api/posts/${slug}`,
-            );
-            const res = await response.json();
-            if (res.success && res.data) {
-                setPost(res.data);
+            // getCachedPost 호출: 메모리 캐시 확인 -> 진행 중인 Promise 탑승 -> 없으면 fetch
+            const data = await getCachedPost(slug);
+            if (data) {
+                setPost(data);
             } else {
                 setPost(undefined);
             }
@@ -103,16 +102,22 @@ function PostDetails() {
                 window.__INITIAL_POST_DETAIL__ = undefined;
             }
         }
-    }, [slug, summaryPost]);
+    }, [slug]);
 
     useEffect(() => {
-        // state가 있으면 헤더/썸네일을 0ms 만에 즉시 렌더링하고 본문 로딩 펄스 켬
-        if (summaryPost) {
+        const memCached = slug ? checkPostCacheSync(slug) : undefined;
+
+        if (memCached) {
+            // 호버로 이미 데이터가 완성되어 있으면 즉시 세팅하고 로딩 상태 전부 false
+            setPost(memCached);
+            setIsLoading(false);
+            setIsContentLoading(false);
+        } else if (summaryPost) {
+            // 호버 캐시가 아직 도착 전이면 헤더 먼저 띄우고 본문만 펄스 시작
             setPost(summaryPost);
             setIsLoading(false);
             setIsContentLoading(true);
         } else if (!hasInitialData.current) {
-            // 직접 URL 입력 진입 시에만 전체 스켈레톤 노출
             setPost(undefined);
             setIsLoading(true);
         }
@@ -138,7 +143,6 @@ function PostDetails() {
     return (
         <div>
             <main className="relative max-w-4xl mx-auto px-6 py-12 mb-20">
-                {/* 글 우측 목차 (xl 이상 화면에서만 표시) */}
                 {post.content && <TOC content={post.content} />}
                 <PostHeader post={post} />
                 <img
@@ -149,7 +153,7 @@ function PostDetails() {
                     className="rounded-3xl max-h-[468px] aspect-[16/9] w-full object-cover"
                 />
 
-                {/* 본문 영역: 본문 fetch 대기 중에만 가벼운 펄스 스켈레톤 표시 */}
+                {/* 캐시가 없어서 진짜 비동기 대기 중일 때만 펄스 노출, 캐시가 있으면 바로 본문 출력 */}
                 {isContentLoading || !post.content ? (
                     <div className="py-16 space-y-4 animate-pulse">
                         <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
