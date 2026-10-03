@@ -1,5 +1,5 @@
 import {useParams, useLocation} from "react-router";
-import {useEffect, useState, useCallback, useRef, useMemo} from "react";
+import {useEffect, useState, useRef, useMemo} from "react";
 import PostNavigation from "../../components/post/PostNavigation";
 import MarkdownViewer from "../../components/post/MarkdownViewer";
 import PostHeader from "../../components/post/PostHeader";
@@ -8,7 +8,7 @@ import {Post, PostSummary} from "../../types/post";
 import {PostDetailSkeleton} from "../../components/common/LoadingSkeleton";
 import TOC from "../../components/post/TOC";
 import ScrollToTopButton from "../../components/common/ScrollToTopButton";
-import {getCachedPost, checkPostCacheSync} from "../../utils/prefetch";
+import {checkPostCacheSync, fetchPostWithSWR} from "../../utils/prefetch";
 
 interface LocationState {
     postSummary?: PostSummary;
@@ -19,7 +19,7 @@ function PostDetails() {
     const location = useLocation();
     const routerState = location.state as LocationState | null;
 
-    // Cold Visit: window에 주입된 초기 포스트 상세 데이터 확인
+    // Cold Visit 주입 데이터 확인
     const initialPost = useMemo(() => {
         if (typeof window === "undefined" || !window.__INITIAL_POST_DETAIL__) {
             return undefined;
@@ -36,12 +36,12 @@ function PostDetails() {
         return isMatched ? injected : undefined;
     }, [slug]);
 
-    // SPA 대응: 호버로 이미 받아둔 메모리 캐시 확인 (0ms 동기 조회)
+    // 호버/기존 방문으로 축적된 인메모리 캐시 동기 확인 (0ms)
     const cachedPost = useMemo(() => {
         return slug ? checkPostCacheSync(slug) : undefined;
     }, [slug]);
 
-    // SPA 대응: 홈 화면 카드 또는 PostNavigation에서 넘겨받은 요약 정보
+    // 라우터 state로 넘어온 요약 정보
     const summaryPost = useMemo(() => {
         if (routerState?.postSummary && routerState.postSummary.slug === slug) {
             return {
@@ -52,80 +52,66 @@ function PostDetails() {
         return undefined;
     }, [routerState, slug]);
 
-    // Cold Visit 최초 1회 감지용 플래그
     const hasInitialData = useRef(Boolean(initialPost));
 
-    // 화면 초기 상태: 주입 데이터 > 인메모리 캐시 데이터 > 요약 데이터 > undefined
+    // 화면 초기 상태: 주입 데이터 > 인메모리 전체 데이터 > 요약 데이터
     const [post, setPost] = useState<Post | undefined>(
         () => initialPost || cachedPost || summaryPost,
     );
 
-    // 전체 스켈레톤: 셋 다 없는 직접 URL 진입일 때만 true
+    // 전체 스켈레톤: 셋 다 없는 직접 URL 진입 시에만 true
     const [isLoading, setIsLoading] = useState<boolean>(
         !initialPost && !cachedPost && !summaryPost,
     );
 
-    // 본문 스켈레톤: 요약 정보만 있고 본문 content가 아직 비어있을 때만 true
+    // 본문 펄스 스켈레톤: 요약 정보만 있고 본문 content가 아직 없을 때만 true
     const [isContentLoading, setIsContentLoading] = useState<boolean>(
         Boolean(summaryPost && !initialPost && !cachedPost?.content),
     );
     const [error, setError] = useState<string | null>(null);
 
-    const fetchPostDetail = useCallback(async () => {
+    useEffect(() => {
         if (!slug) return;
+        let isMounted = true;
 
-        // Cold Visit 첫 렌더링 시 주입된 데이터를 사용한 경우 1회 건너뜀
+        // Cold Visit 첫 렌더링 주입 데이터 사용 시 1회 스킵
         if (hasInitialData.current) {
             hasInitialData.current = false;
-            return;
-        }
-
-        try {
-            setError(null);
-
-            // getCachedPost 호출: 메모리 캐시 확인 -> 진행 중인 Promise 탑승 -> 없으면 fetch
-            const data = await getCachedPost(slug);
-            if (data) {
-                setPost(data);
-            } else {
-                setPost(undefined);
-            }
-        } catch (e) {
-            if (e instanceof Error) {
-                setError(e.message);
-            }
-            console.error("===== 데이터 로드 실패 =====", e);
-        } finally {
-            setIsLoading(false);
-            setIsContentLoading(false);
             if (typeof window !== "undefined") {
                 window.__INITIAL_POST_DETAIL__ = undefined;
             }
+            return;
         }
-    }, [slug]);
 
-    useEffect(() => {
-        const memCached = slug ? checkPostCacheSync(slug) : undefined;
+        // SWR 실행: 즉시 캐시 반환 + 백그라운드 재검증
+        const cached = fetchPostWithSWR(slug, (freshData) => {
+            if (isMounted && freshData) {
+                setPost(freshData);
+                setIsLoading(false);
+                setIsContentLoading(false);
+                setError(null);
+            }
+        });
 
-        if (memCached) {
-            // 호버로 이미 데이터가 완성되어 있으면 즉시 세팅하고 로딩 상태 전부 false
-            setPost(memCached);
+        if (cached?.content) {
+            // 캐시에 본문까지 완벽히 있으면 스켈레톤 없이 즉시 렌더링
+            setPost(cached);
             setIsLoading(false);
             setIsContentLoading(false);
         } else if (summaryPost) {
-            // 호버 캐시가 아직 도착 전이면 헤더 먼저 띄우고 본문만 펄스 시작
+            // 호버 캐시가 아직 도착 전이면 헤더 띄우고 본문만 펄스 시작
             setPost(summaryPost);
             setIsLoading(false);
             setIsContentLoading(true);
-        } else if (!hasInitialData.current) {
-            setPost(undefined);
+        } else {
             setIsLoading(true);
         }
 
-        fetchPostDetail();
-    }, [slug, fetchPostDetail, summaryPost]);
+        return () => {
+            isMounted = false;
+        };
+    }, [slug, summaryPost]);
 
-    // 아무런 데이터도 없을 때만 전체 스켈레톤 렌더링
     if (isLoading && !post) {
         return <PostDetailSkeleton />;
     }
@@ -153,7 +139,6 @@ function PostDetails() {
                     className="rounded-3xl max-h-[468px] aspect-[16/9] w-full object-cover"
                 />
 
-                {/* 캐시가 없어서 진짜 비동기 대기 중일 때만 펄스 노출, 캐시가 있으면 바로 본문 출력 */}
                 {isContentLoading || !post.content ? (
                     <div className="py-16 space-y-4 animate-pulse">
                         <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>

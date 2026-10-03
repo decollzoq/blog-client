@@ -1,14 +1,18 @@
-// 최근 10개 포스트만 보관하여 메모리 누수 방지 (LRU)
 const MAX_CACHE_SIZE = 10;
+
+// 상세 포스트 캐시 및 진행 중인 요청 맵
 const postDataCache = new Map<string, any>();
-const ongoingPromiseCache = new Map<string, Promise<any>>();
+const ongoingPostPromiseMap = new Map<string, Promise<any>>();
+
+// 포스트 목록 캐시 및 진행 중인 요청 맵
+const postListCache = new Map<string, any>();
+const ongoingListPromiseMap = new Map<string, Promise<any>>();
 
 export const prefetchPostDetail = (slug: string) => {
     if (!slug) return;
-    if (postDataCache.has(slug) || ongoingPromiseCache.has(slug)) return;
+    if (postDataCache.has(slug) || ongoingPostPromiseMap.has(slug)) return;
 
     const apiUrl = `${process.env.REACT_APP_SERVER_URL || ""}/api/posts/${slug}`;
-
     const promise = fetch(apiUrl)
         .then((res) => {
             if (!res.ok) throw new Error("포스트 로드 실패");
@@ -28,39 +32,114 @@ export const prefetchPostDetail = (slug: string) => {
             throw err;
         })
         .finally(() => {
-            ongoingPromiseCache.delete(slug);
+            ongoingPostPromiseMap.delete(slug);
         });
 
-    ongoingPromiseCache.set(slug, promise);
+    ongoingPostPromiseMap.set(slug, promise);
 };
 
-export const getCachedPost = async (slug: string) => {
-    // 1. 이미 완료된 데이터가 메모리에 있으면 동기(0ms) 반환
-    if (postDataCache.has(slug)) {
-        return postDataCache.get(slug);
+export const checkPostCacheSync = (slug: string) => {
+    return postDataCache.get(slug);
+};
+
+export const fetchPostWithSWR = (
+    slug: string,
+    onRevalidated: (freshData: any) => void,
+) => {
+    // 1. 이미 캐시된 데이터 즉시 확인
+    const cachedData = postDataCache.get(slug);
+
+    // 2. 이미 백그라운드 네트워크 요청이 진행 중이라면 그 Promise에 콜백 연결
+    if (ongoingPostPromiseMap.has(slug)) {
+        ongoingPostPromiseMap
+            .get(slug)!
+            .then((freshData) => {
+                if (freshData) onRevalidated(freshData);
+            })
+            .catch(() => {});
+        return cachedData;
     }
-    // 2. 호버로 요청이 날아가 진행 중인 상태라면 그 Promise 반환
-    if (ongoingPromiseCache.has(slug)) {
-        return ongoingPromiseCache.get(slug);
-    }
-    // 3. 호버 없이 직행한 경우 fetch 실행 후 캐시 적재
-    return fetch(`${process.env.REACT_APP_SERVER_URL || ""}/api/posts/${slug}`)
+
+    // 3. 백그라운드 재검증 요청 (Revalidate)
+    const apiUrl = `${process.env.REACT_APP_SERVER_URL || ""}/api/posts/${slug}`;
+    const promise = fetch(apiUrl)
         .then((res) => {
             if (!res.ok) throw new Error("포스트 로드 실패");
             return res.json();
         })
         .then((res) => {
-            const data = res.data || res;
+            const freshData = res.data || res;
             if (postDataCache.size >= MAX_CACHE_SIZE) {
                 const oldestKey = postDataCache.keys().next().value;
                 if (oldestKey) postDataCache.delete(oldestKey);
             }
-            postDataCache.set(slug, data);
-            return data;
+            postDataCache.set(slug, freshData);
+            onRevalidated(freshData);
+            return freshData;
+        })
+        .catch((err) => {
+            console.error("포스트 백그라운드 재검증 실패:", err);
+            throw err;
+        })
+        .finally(() => {
+            ongoingPostPromiseMap.delete(slug);
         });
+
+    ongoingPostPromiseMap.set(slug, promise);
+    return cachedData;
 };
 
-// 동기식으로 캐시 존재 여부만 빠르게 확인할 수 있는 헬퍼
-export const checkPostCacheSync = (slug: string) => {
-    return postDataCache.get(slug);
+export const checkPostListCacheSync = (
+    category: string = "all",
+    page: number = 1,
+) => {
+    return postListCache.get(`${category}-${page}`);
+};
+
+export const fetchPostListWithSWR = (
+    category: string = "all",
+    page: number = 1,
+    onRevalidated: (freshData: any) => void,
+) => {
+    const cacheKey = `${category}-${page}`;
+    const cachedData = postListCache.get(cacheKey);
+
+    // 중복 API 호출 방지 (Home 진입 시 2번 호출 차단)
+    if (ongoingListPromiseMap.has(cacheKey)) {
+        ongoingListPromiseMap
+            .get(cacheKey)!
+            .then((freshData) => {
+                if (freshData) onRevalidated(freshData);
+            })
+            .catch(() => {});
+        return cachedData;
+    }
+
+    const query = new URLSearchParams();
+    if (category && category !== "all") query.append("category", category);
+    query.append("page", String(page));
+
+    const apiUrl = `${process.env.REACT_APP_SERVER_URL || ""}/api/posts?${query.toString()}`;
+
+    const promise = fetch(apiUrl)
+        .then((res) => {
+            if (!res.ok) throw new Error("목록 로드 실패");
+            return res.json();
+        })
+        .then((res) => {
+            const freshData = res.data || res;
+            postListCache.set(cacheKey, freshData);
+            onRevalidated(freshData);
+            return freshData;
+        })
+        .catch((err) => {
+            console.error("목록 백그라운드 재검증 실패:", err);
+            throw err;
+        })
+        .finally(() => {
+            ongoingListPromiseMap.delete(cacheKey);
+        });
+
+    ongoingListPromiseMap.set(cacheKey, promise);
+    return cachedData;
 };
