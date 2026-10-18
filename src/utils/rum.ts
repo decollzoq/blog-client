@@ -15,7 +15,7 @@ function sendToRUM(metric: Metric) {
     });
 
     if (typeof navigator !== "undefined" && navigator.sendBeacon) {
-        const blob = new Blob([body], {type: "application/json"});
+        const blob = new Blob([body], {type: "text/plain"});
         navigator.sendBeacon(`${SERVER_URL}/api/rum`, blob);
     }
 }
